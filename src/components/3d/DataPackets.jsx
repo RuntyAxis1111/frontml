@@ -1,77 +1,100 @@
 import { useRef, useMemo, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Trail, Float } from '@react-three/drei'
+import { Trail } from '@react-three/drei'
 import * as THREE from 'three'
+import { generateTree } from '../../utils/treeGenerator'
 
-const Packet = ({ color, speed, offset, pathPoints }) => {
+const Packet = ({ pathPoints, color, speed, offset }) => {
     const ref = useRef()
     const [t, setT] = useState(offset)
 
     // Create a smooth curve from the path points
+    // MUST match the Branch curve logic exactly
     const curve = useMemo(() => {
-        const vectors = pathPoints.map(p => new THREE.Vector3(...p))
-        return new THREE.CatmullRomCurve3(vectors)
+        const points = []
+        for (let i = 0; i < pathPoints.length - 1; i++) {
+            const start = pathPoints[i]
+            const end = pathPoints[i + 1]
+
+            // Recreate the exact curve used in DecisionTree
+            const branchCurve = new THREE.CatmullRomCurve3([
+                start,
+                start.clone().lerp(end, 0.5).add(new THREE.Vector3(0, 0.5, 0)),
+                end
+            ])
+
+            // Sample points from this branch segment
+            points.push(...branchCurve.getPoints(10))
+        }
+        return new THREE.CatmullRomCurve3(points)
     }, [pathPoints])
 
     useFrame((state, delta) => {
-        // Move along the curve
-        let nextT = t + (speed * delta * 0.5)
+        let nextT = t + (speed * delta * 0.2) // Slower speed for elegance
         if (nextT > 1) nextT = 0
         setT(nextT)
 
         const position = curve.getPoint(nextT)
-        ref.current.position.copy(position)
+        if (ref.current) {
+            ref.current.position.copy(position)
+        }
     })
 
     return (
         <Trail
-            width={2} // Width of the trail
-            length={8} // Length of the trail
-            color={new THREE.Color(color).multiplyScalar(10)} // High intensity for bloom
+            width={1.5}
+            length={6}
+            color={new THREE.Color(color).multiplyScalar(15)}
             attenuation={(t) => t * t}
         >
             <mesh ref={ref}>
-                <sphereGeometry args={[0.08, 16, 16]} />
-                <meshBasicMaterial color={new THREE.Color(color).multiplyScalar(10)} />
+                <sphereGeometry args={[0.05, 16, 16]} />
+                <meshBasicMaterial color={new THREE.Color(color).multiplyScalar(20)} />
             </mesh>
         </Trail>
     )
 }
 
 const DataPackets = () => {
-    // Define some paths based on the tree structure in DecisionTree
-    // This is a simplified hardcoded set of paths for visual effect
-    // In a real app, this would be dynamic based on the tree data
+    const { nodes, branches } = useMemo(() => generateTree(), [])
 
     const paths = useMemo(() => {
         const p = []
-        const colors = ['#00f3ff', '#0aff00', '#ffea00'] // Blue, Green, Yellow
+        const colors = ['#00f3ff', '#0aff00', '#ffea00']
 
-        // Helper to create a path from root up to a leaf
-        const createPath = (endX, endY) => {
-            return [
-                [0, 0, 0], // Root
-                [endX * 0.3, endY * 0.33, 0],
-                [endX * 0.6, endY * 0.66, 0],
-                [endX, endY, 0]
-            ]
+        // Find all leaf nodes
+        const leaves = nodes.filter(n => !branches.find(b => b.startId === n.id))
+
+        // Helper to trace back from leaf to root
+        const getPathToRoot = (node) => {
+            const path = [node.position]
+            let current = node
+            while (current.parent) {
+                const parent = nodes.find(n => n.id === current.parent)
+                if (parent) {
+                    path.unshift(parent.position)
+                    current = parent
+                } else {
+                    break
+                }
+            }
+            return path
         }
 
-        // Generate random packets
-        for (let i = 0; i < 15; i++) {
-            const side = Math.random() > 0.5 ? 1 : -1
-            const spread = Math.random() * 3 + 1
-            const height = 6
+        // Generate packets for random leaves
+        for (let i = 0; i < 12; i++) {
+            const randomLeaf = leaves[Math.floor(Math.random() * leaves.length)]
+            const pathPoints = getPathToRoot(randomLeaf)
 
             p.push({
-                path: createPath(side * spread, height),
+                path: pathPoints,
                 color: colors[Math.floor(Math.random() * colors.length)],
-                speed: Math.random() * 0.5 + 0.2,
+                speed: Math.random() * 0.3 + 0.1,
                 offset: Math.random()
             })
         }
         return p
-    }, [])
+    }, [nodes, branches])
 
     return (
         <group>

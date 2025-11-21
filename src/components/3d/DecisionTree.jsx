@@ -1,88 +1,58 @@
-import { useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useMemo } from 'react'
 import * as THREE from 'three'
+import { generateTree } from '../../utils/treeGenerator'
 
-const Node = ({ position, scale = 1 }) => {
+const Node = ({ position }) => {
     return (
-        <mesh position={position} scale={scale} castShadow receiveShadow>
-            <sphereGeometry args={[0.4, 32, 32]} />
+        <mesh position={position} castShadow receiveShadow>
+            <sphereGeometry args={[0.3, 32, 32]} />
             <meshPhysicalMaterial
-                color="#eeeeee"
-                roughness={0.2}
+                color="#ffffff"
+                roughness={0.1}
                 metalness={0.1}
-                transmission={0}
-                thickness={1}
+                transmission={0} // Solid ceramic nodes
                 clearcoat={1}
-                clearcoatRoughness={0.1}
             />
         </mesh>
     )
 }
 
-const Branch = ({ start, end, thickness = 0.08 }) => {
-    const ref = useRef()
-
+const Branch = ({ start, end, thickness = 0.15 }) => {
     const curve = useMemo(() => {
         return new THREE.CatmullRomCurve3([
-            new THREE.Vector3(...start),
-            new THREE.Vector3(...start).lerp(new THREE.Vector3(...end), 0.5).add(new THREE.Vector3(0, 0.5, 0)), // slight arch
-            new THREE.Vector3(...end)
+            new THREE.Vector3(start.x, start.y, start.z),
+            new THREE.Vector3(start.x, start.y, start.z).lerp(new THREE.Vector3(end.x, end.y, end.z), 0.5).add(new THREE.Vector3(0, 0.5, 0)),
+            new THREE.Vector3(end.x, end.y, end.z)
         ])
     }, [start, end])
 
     return (
-        <mesh ref={ref} castShadow receiveShadow>
-            <tubeGeometry args={[curve, 20, thickness, 8, false]} />
+        <mesh castShadow receiveShadow>
+            <tubeGeometry args={[curve, 20, thickness, 16, false]} />
             <meshPhysicalMaterial
-                color="#eeeeee"
-                roughness={0.2}
+                color="#ffffff"
+                roughness={0.05}
                 metalness={0.1}
+                transmission={1} // Glass!
+                thickness={1.5} // Refraction volume
+                ior={1.5}
                 clearcoat={1}
+                transparent
+                opacity={0.3} // Slight base opacity
             />
         </mesh>
     )
 }
 
 const DecisionTree = () => {
-    // Procedural tree structure
-    // Level 0: Root
-    // Level 1: 2 nodes
-    // Level 2: 4 nodes
-    // Level 3: 8 nodes
-
-    const levels = 4
-    const spread = 2.5
-    const height = 2
-
-    const nodes = useMemo(() => {
-        const n = []
-        const branches = []
-
-        const generate = (x, y, z, level, parentPos) => {
-            if (level >= levels) return
-
-            const pos = [x, y, z]
-            n.push({ position: pos, id: `${level}-${x}` })
-
-            if (parentPos) {
-                branches.push({ start: parentPos, end: pos })
-            }
-
-            const nextSpread = spread / (level + 1.2)
-            generate(x - nextSpread, y + height, z, level + 1, pos)
-            generate(x + nextSpread, y + height, z, level + 1, pos)
-        }
-
-        generate(0, 0, 0, 0, null)
-        return { nodes: n, branches }
-    }, [])
+    const { nodes, branches } = useMemo(() => generateTree(), [])
 
     return (
         <group>
-            {nodes.nodes.map((node, i) => (
+            {nodes.map((node, i) => (
                 <Node key={i} position={node.position} />
             ))}
-            {nodes.branches.map((branch, i) => (
+            {branches.map((branch, i) => (
                 <Branch key={i} start={branch.start} end={branch.end} />
             ))}
 
@@ -90,7 +60,7 @@ const DecisionTree = () => {
             <mesh position={[0, -0.5, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
                 <circleGeometry args={[8, 64]} />
                 <meshStandardMaterial
-                    color="#111"
+                    color="#050505"
                     roughness={0.4}
                     metalness={0.8}
                 />

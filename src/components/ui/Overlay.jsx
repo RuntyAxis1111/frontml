@@ -1,71 +1,101 @@
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
-const Card = ({ title, value, label, color = "text-white" }) => (
+const StatPill = ({ title, value, color = "text-white", delay = 0 }) => (
     <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-lg w-64 mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay }}
+        className="flex flex-col"
     >
-        <h3 className="text-xs text-gray-400 uppercase tracking-widest mb-1 font-mono">{title}</h3>
-        <div className={`text-2xl font-bold font-mono ${color} drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]`}>
+        <div className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-sans mb-1">{title}</div>
+        <div className={`text-xl font-mono font-light ${color} drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]`}>
             {value}
         </div>
-        <div className="text-xs text-gray-500 mt-1">{label}</div>
     </motion.div>
 )
 
 const Overlay = () => {
+    const [time, setTime] = useState(new Date().toLocaleTimeString())
+
+    useEffect(() => {
+        const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000)
+        return () => clearInterval(timer)
+    }, [])
+
     return (
-        <div className="fixed inset-0 pointer-events-none p-8 flex flex-col justify-between z-10">
-            {/* Header */}
+        <div className="fixed inset-0 pointer-events-none p-12 flex flex-col justify-between z-10">
+            {/* Minimal Header */}
             <header className="flex justify-between items-start">
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-black/20 backdrop-blur-lg border-l-4 border-neon-blue p-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                    className="flex items-center gap-4"
                 >
-                    <h1 className="text-4xl font-bold font-sans tracking-tighter">XGBOOST<span className="text-neon-blue">.VIZ</span></h1>
-                    <p className="text-sm font-mono text-neon-blue/80 mt-1">DECISION TREE VISUALIZATION // V.1.0.4</p>
+                    <div className="w-1 h-1 bg-neon-blue rounded-full shadow-[0_0_10px_#00f3ff]" />
+                    <div>
+                        <h1 className="text-2xl font-sans font-bold tracking-tight text-white/90">
+                            XGBOOST<span className="text-neon-blue font-light">.VIZ</span>
+                        </h1>
+                        <div className="flex gap-4 mt-1">
+                            <p className="text-[10px] font-mono text-gray-500 tracking-widest">DECISION TREE RENDERER</p>
+                            <p className="text-[10px] font-mono text-gray-600 tracking-widest">{time}</p>
+                        </div>
+                    </div>
                 </motion.div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-8">
                     <div className="text-right">
-                        <div className="text-xs text-gray-400 font-mono">SYSTEM STATUS</div>
-                        <div className="text-neon-green font-mono animate-pulse">ONLINE</div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-xs text-gray-400 font-mono">GPU USAGE</div>
-                        <div className="text-white font-mono">34%</div>
+                        <div className="text-[10px] text-gray-600 font-mono tracking-widest mb-1">STATUS</div>
+                        <div className="flex items-center justify-end gap-2">
+                            <div className="w-1.5 h-1.5 bg-neon-green rounded-full animate-pulse" />
+                            <span className="text-neon-green font-mono text-xs">ONLINE</span>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            {/* Left Panel - Stats */}
-            <div className="absolute left-8 top-1/3">
-                <Card title="Model Accuracy" value="98.4%" label="+0.2% from last epoch" color="text-neon-green" />
-                <Card title="Tree Depth" value="12" label="Max depth reached" color="text-neon-blue" />
-                <Card title="Active Nodes" value="1,024" label="Processing..." color="text-neon-yellow" />
+            {/* Floating Stats - Bottom Left */}
+            <div className="absolute left-12 bottom-12 flex gap-12">
+                <StatPill title="Accuracy" value="98.4%" color="text-neon-green" delay={0.2} />
+                <StatPill title="Depth" value="12" color="text-neon-blue" delay={0.3} />
+                <StatPill title="Nodes" value="1,024" color="text-neon-yellow" delay={0.4} />
             </div>
 
-            {/* Bottom Panel - Timeline/Logs */}
+            {/* Minimal Logs - Bottom Right */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="w-full max-w-3xl mx-auto bg-black/40 backdrop-blur-md border-t border-white/10 p-4 rounded-t-xl"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+                className="absolute right-12 bottom-12 w-80"
             >
-                <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-mono text-gray-400">LIVE LOGS</span>
-                    <span className="text-xs font-mono text-neon-blue">AUTO-SCROLL ON</span>
-                </div>
-                <div className="font-mono text-xs space-y-1 h-24 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-                    <div className="text-gray-300">[15:42:01] <span className="text-neon-blue">INFO</span> Initializing render engine...</div>
-                    <div className="text-gray-300">[15:42:02] <span className="text-neon-green">SUCCESS</span> Model loaded successfully.</div>
-                    <div className="text-gray-300">[15:42:03] <span className="text-neon-yellow">WARN</span> High variance detected in branch 0x4F.</div>
-                    <div className="text-gray-300">[15:42:04] <span className="text-neon-blue">INFO</span> Optimizing leaf nodes...</div>
-                    <div className="text-gray-300">[15:42:05] <span className="text-neon-blue">INFO</span> Rendering frame 2048...</div>
+                <div className="bg-black/20 backdrop-blur-xl border border-white/5 rounded-lg p-4 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+
+                    <div className="flex justify-between items-center mb-3 border-b border-white/5 pb-2">
+                        <span className="text-[10px] font-sans tracking-widest text-gray-500">SYSTEM LOGS</span>
+                        <div className="w-1 h-1 bg-neon-blue rounded-full" />
+                    </div>
+
+                    <div className="font-mono text-[10px] space-y-2 text-gray-400">
+                        <div className="flex gap-2">
+                            <span className="text-gray-600">::</span>
+                            <span>Initializing render engine...</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <span className="text-neon-green">OK</span>
+                            <span className="text-white/80">Model loaded successfully</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <span className="text-neon-yellow">!!</span>
+                            <span>Variance detected in branch 0x4F</span>
+                        </div>
+                        <div className="flex gap-2 opacity-50">
+                            <span className="text-gray-600">::</span>
+                            <span>Optimizing leaf nodes...</span>
+                        </div>
+                    </div>
                 </div>
             </motion.div>
         </div>
