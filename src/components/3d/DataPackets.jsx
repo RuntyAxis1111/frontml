@@ -60,7 +60,7 @@ const DataPackets = () => {
 
     const paths = useMemo(() => {
         const p = []
-        const colors = ['#00f3ff', '#0aff00', '#ffea00']
+        const colors = ['#4ade80', '#38bdf8', '#fbbf24'] // Leaf Green, Water Blue, Solar Amber
 
         // Find all leaf nodes
         const leaves = nodes.filter(n => !branches.find(b => b.startId === n.id))

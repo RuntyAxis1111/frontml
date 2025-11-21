@@ -1,46 +1,35 @@
-# UI Redesign Implementation Plan
+# Organic Biotech Redesign Plan
 
 ## Goal Description
-Elevate the current UI to a "premium, elegant" aesthetic. The current design is functional but looks a bit raw. We will refine the glassmorphism, typography, and layout to create a more sophisticated, cinematic feel.
+Transform the current "Dark Cyberpunk" aesthetic into a "Organic Biotech / HYBE Nature" look. The scene should feel like a clean, luminous data lab surrounded by abstract nature.
 
 ## Proposed Changes
 
-### Styling (`src/components/ui/Overlay.jsx`)
--   **Refined Glassmorphism**:
-    -   Reduce border opacity (`border-white/5` instead of `10`).
-    -   Increase backdrop blur (`backdrop-blur-xl`).
-    -   Add subtle gradients to backgrounds (`bg-gradient-to-b from-white/5 to-transparent`).
--   **Typography**:
-    -   Use a mix of `sans-serif` (Inter) for headers and `mono` (Share Tech Mono) for data.
-    -   Increase letter spacing (`tracking-widest`) for labels.
-    -   Use lighter font weights for a cleaner look.
--   **Layout**:
-    -   **Header**: Make it more minimal. Remove the heavy border-left. Use a subtle glowing dot or line.
-    -   **Stats Cards**: Move them to the bottom-left or make them floating "pills" rather than heavy cards.
-    -   **Logs**: Make the logs panel floating and more transparent.
--   **Effects**:
-    -   Add subtle inner shadows or glows to panels.
+### Scene & Lighting (`src/components/3d/Experience.jsx`)
+-   **Background**: Change to soft off-white/warm gray (`#f4f7f6`).
+-   **Fog**: Add matching fog to blend the floor with the horizon.
+-   **Lighting**:
+    -   Use `Environment` preset "forest" or "park" (low intensity).
+    -   Add `DirectionalLight` (pale yellow) for sun simulation and soft shadows.
+    -   Adjust Post-processing: Reduce Bloom intensity, adjust ToneMapping for a brighter look.
 
-### Global Styles (`src/index.css`)
--   Ensure `Inter` font is loaded and set as default sans.
+### Materials (`src/components/3d/DecisionTree.jsx`)
+-   **Nodes**: Polished White Ceramic (`color: #ffffff`, `roughness: 0.1`, `transmission: 0`).
+-   **Branches**: Light Silver/Grey (`color: #e2e8f0`, `roughness: 0.2`, `metalness: 0.5`).
+-   **Floor**: Use `ContactShadows` instead of a dark mesh platform.
 
-### 3D Logic (`src/components/3d`)
--   **Shared Tree Logic (`src/utils/treeGenerator.js`)**:
-    -   Extract the procedural tree generation from `DecisionTree.jsx` into a shared utility.
-    -   Return a graph structure (nodes and edges) that can be traversed.
--   **`DecisionTree.jsx`**:
-    -   Update to use the shared `treeGenerator`.
-    -   **Material Upgrade**: Change branches to a "Premium Glass" look:
-        -   `transmission`: 1 (fully transparent)
-        -   `roughness`: 0.1 (smooth)
-        -   `thickness`: 0.5 (refraction volume)
-        -   `color`: White or very faint blue.
+### Particles (`src/components/3d/DataPackets.jsx`)
+-   **Colors**: Nature-inspired palette:
+    -   Leaf Green (`#4ade80`)
+    -   Water Blue (`#38bdf8`)
+    -   Solar Amber (`#fbbf24`)
 
--   **`DataPackets.jsx`**:
-    -   Update to use `treeGenerator` to find valid paths from Root to Leaves.
-    -   Ensure packet animation follows the *exact* curve of the branches (using the same `CatmullRomCurve3` parameters).
-
+### UI & Global Styles (`src/components/ui/Overlay.jsx`, `src/index.css`)
+-   **Global**: Change body background to `#f4f7f6`.
+-   **Overlay**: Invert colors for the light theme.
+    -   Text: Dark Gray (`text-slate-800`) instead of White.
+    -   Panels: White glass (`bg-white/40`) with dark borders (`border-black/5`).
 
 ## Verification Plan
--   **Visual Check**: Verify the new look matches the "elegant" description (cleaner, more premium).
--   **Responsiveness**: Ensure it still looks good on different screen sizes.
+-   **Visual Check**: Ensure the scene looks bright, clean, and "organic".
+-   **Contrast**: Verify UI text is readable against the light background.

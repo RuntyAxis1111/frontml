@@ -12,45 +12,47 @@ const Experience = () => {
                 makeDefault
                 enablePan={false}
                 minPolarAngle={Math.PI / 4}
-                maxPolarAngle={Math.PI / 1.5}
+                maxPolarAngle={Math.PI / 1.8} // Limit low angle to keep floor visible
                 minDistance={5}
                 maxDistance={20}
             />
 
-            {/* Lighting */}
-            <ambientLight intensity={0.2} />
-            <spotLight
-                position={[10, 10, 10]}
-                angle={0.15}
-                penumbra={1}
-                intensity={100}
+            {/* Lighting - Organic/Nature */}
+            <ambientLight intensity={0.5} />
+            <directionalLight
+                position={[5, 10, 5]}
+                intensity={2}
                 castShadow
                 shadow-bias={-0.0001}
-            />
-            <pointLight position={[-10, -10, -10]} intensity={50} color="#444" />
+            >
+                <orthographicCamera attach="shadow-camera" args={[-10, 10, 10, -10]} />
+            </directionalLight>
+
+            {/* Fill light from opposite side */}
+            <directionalLight position={[-5, 5, -5]} intensity={0.5} color="#e0f2fe" />
 
             {/* Environment for reflections */}
-            <Environment preset="city" />
+            <Environment preset="forest" blur={0.8} background={false} />
 
             {/* Scene Content */}
-            <color attach="background" args={['#050505']} />
-            <fog attach="fog" args={['#050505', 5, 30]} />
+            <color attach="background" args={['#f4f7f6']} />
+            <fog attach="fog" args={['#f4f7f6', 8, 25]} />
 
             <group position={[0, -2, 0]}>
                 <DecisionTree />
                 <DataPackets />
             </group>
 
-            {/* Post Processing */}
+            {/* Post Processing - Subtle & Clean */}
             <EffectComposer disableNormalPass>
                 <Bloom
-                    luminanceThreshold={1}
+                    luminanceThreshold={0.8} // Higher threshold so only very bright things glow
                     mipmapBlur
-                    intensity={1.5}
+                    intensity={0.8} // Reduced intensity
                     radius={0.4}
                 />
-                <Vignette eskil={false} offset={0.1} darkness={1.1} />
-                <Noise opacity={0.02} />
+                <Vignette eskil={false} offset={0.1} darkness={0.4} />
+                <Noise opacity={0.015} />
             </EffectComposer>
         </>
     )

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
+import { ContactShadows } from '@react-three/drei'
 import { generateTree } from '../../utils/treeGenerator'
 
 const Node = ({ position }) => {
@@ -10,8 +11,9 @@ const Node = ({ position }) => {
                 color="#ffffff"
                 roughness={0.1}
                 metalness={0.1}
-                transmission={0} // Solid ceramic nodes
+                transmission={0}
                 clearcoat={1}
+                clearcoatRoughness={0.1}
             />
         </mesh>
     )
@@ -29,16 +31,11 @@ const Branch = ({ start, end, thickness = 0.15 }) => {
     return (
         <mesh castShadow receiveShadow>
             <tubeGeometry args={[curve, 20, thickness, 16, false]} />
-            <meshPhysicalMaterial
-                color="#ffffff"
-                roughness={0.05}
-                metalness={0.1}
-                transmission={1} // Glass!
-                thickness={1.5} // Refraction volume
-                ior={1.5}
-                clearcoat={1}
-                transparent
-                opacity={0.3} // Slight base opacity
+            <meshStandardMaterial
+                color="#e2e8f0" // Light silver/grey
+                roughness={0.2}
+                metalness={0.5}
+                envMapIntensity={1}
             />
         </mesh>
     )
@@ -56,15 +53,15 @@ const DecisionTree = () => {
                 <Branch key={i} start={branch.start} end={branch.end} />
             ))}
 
-            {/* Base Platform */}
-            <mesh position={[0, -0.5, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-                <circleGeometry args={[8, 64]} />
-                <meshStandardMaterial
-                    color="#050505"
-                    roughness={0.4}
-                    metalness={0.8}
-                />
-            </mesh>
+            {/* Soft Contact Shadows instead of dark platform */}
+            <ContactShadows
+                position={[0, -0.5, 0]}
+                opacity={0.4}
+                scale={15}
+                blur={2}
+                far={4}
+                color="#94a3b8" // Cool grey shadow
+            />
         </group>
     )
 }
