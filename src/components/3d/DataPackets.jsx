@@ -96,7 +96,7 @@ const DataPackets = () => {
             let pathPoints = getPathToRoot(randomLeaf)
 
             // Always go Upwards (Root -> Leaf)
-            pathPoints = [...pathPoints].reverse()
+            pathPoints = [...pathPoints]
 
             // 5% chance of being a RED ANOMALY
             const isAnomaly = Math.random() > 0.95
