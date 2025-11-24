@@ -19,7 +19,7 @@ const Node = ({ position }) => {
     )
 }
 
-const Branch = ({ start, end, thickness = 0.15 }) => {
+const Branch = ({ start, end, thickness = 0.08 }) => {
     const curve = useMemo(() => {
         return new THREE.CatmullRomCurve3([
             new THREE.Vector3(start.x, start.y, start.z),
@@ -30,7 +30,7 @@ const Branch = ({ start, end, thickness = 0.15 }) => {
 
     return (
         <mesh castShadow receiveShadow>
-            <tubeGeometry args={[curve, 20, thickness, 16, false]} />
+            <tubeGeometry args={[curve, 12, thickness, 8, false]} /> {/* Reduced segments from 20/16 to 12/8 */}
             <meshStandardMaterial
                 color="#e2e8f0" // Light silver/grey
                 roughness={0.2}

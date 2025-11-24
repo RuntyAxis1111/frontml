@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-export const generateTree = (levels = 4, spread = 2.5, height = 2) => {
+export const generateTree = (levels = 5, spread = 3.0, height = 1.5) => {
     const nodes = []
     const branches = []
 
@@ -8,7 +8,7 @@ export const generateTree = (levels = 4, spread = 2.5, height = 2) => {
         if (level >= levels) return
 
         const pos = new THREE.Vector3(x, y, z)
-        const nodeId = `${level}-${x}-${z}`
+        const nodeId = `${level}-${x.toFixed(2)}-${z.toFixed(2)}`
 
         const node = {
             position: pos,
@@ -27,11 +27,19 @@ export const generateTree = (levels = 4, spread = 2.5, height = 2) => {
             })
         }
 
-        const nextSpread = spread / (level + 1.2)
+        const nextSpread = spread / (level * 0.8 + 1)
 
-        // Recursively create children
-        generate(x - nextSpread, y + height, z, level + 1, node)
-        generate(x + nextSpread, y + height, z, level + 1, node)
+        // Symmetrical Quad-Branching (4 children per node)
+        // This creates perfect symmetry and 3D volume
+
+        // Front-Left
+        generate(x - nextSpread, y + height, z + nextSpread, level + 1, node)
+        // Front-Right
+        generate(x + nextSpread, y + height, z + nextSpread, level + 1, node)
+        // Back-Left
+        generate(x - nextSpread, y + height, z - nextSpread, level + 1, node)
+        // Back-Right
+        generate(x + nextSpread, y + height, z - nextSpread, level + 1, node)
     }
 
     generate(0, 0, 0, 0, null)

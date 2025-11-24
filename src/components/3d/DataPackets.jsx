@@ -42,14 +42,23 @@ const Packet = ({ pathPoints, color, speed, offset }) => {
 
     return (
         <Trail
-            width={1.5}
-            length={6}
-            color={new THREE.Color(color).multiplyScalar(15)}
+            width={2}
+            length={6} // Shorter trail for performance
+            color={new THREE.Color(color).multiplyScalar(1.5)}
             attenuation={(t) => t * t}
+            decay={1} // Faster decay
+            local={false}
+            stride={0} // Optimize updates
+            interval={1}
         >
             <mesh ref={ref}>
-                <sphereGeometry args={[0.05, 16, 16]} />
-                <meshBasicMaterial color={new THREE.Color(color).multiplyScalar(20)} />
+                <sphereGeometry args={[0.2, 12, 12]} /> {/* Low Poly Optimization */}
+                <meshStandardMaterial
+                    color={color}
+                    emissive={color}
+                    emissiveIntensity={3}
+                    toneMapped={false}
+                />
             </mesh>
         </Trail>
     )
@@ -81,16 +90,24 @@ const DataPackets = () => {
             return path
         }
 
-        // Generate packets for random leaves
-        for (let i = 0; i < 12; i++) {
+        // Generate packets with RANDOM directions (Up/Down)
+        for (let i = 0; i < 100; i++) {
             const randomLeaf = leaves[Math.floor(Math.random() * leaves.length)]
-            const pathPoints = getPathToRoot(randomLeaf)
+            let pathPoints = getPathToRoot(randomLeaf)
+
+            // Always go Upwards (Root -> Leaf)
+            pathPoints = [...pathPoints].reverse()
+
+            // 5% chance of being a RED ANOMALY
+            const isAnomaly = Math.random() > 0.95
+            const color = isAnomaly ? '#ef4444' : colors[Math.floor(Math.random() * colors.length)]
+            const speed = isAnomaly ? 0.5 : Math.random() * 0.2 + 0.1
 
             p.push({
                 path: pathPoints,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                speed: Math.random() * 0.3 + 0.1,
-                offset: Math.random()
+                color: color,
+                speed: speed,
+                offset: Math.random() * 20 // Spread out over a longer timeframe
             })
         }
         return p

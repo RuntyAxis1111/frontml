@@ -3,6 +3,7 @@ import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocess
 import { KernelSize } from 'postprocessing'
 import DecisionTree from './DecisionTree'
 import DataPackets from './DataPackets'
+import BackgroundTree from './BackgroundTree'
 
 const Experience = () => {
     return (
@@ -36,9 +37,12 @@ const Experience = () => {
 
             {/* Scene Content */}
             <color attach="background" args={['#f4f7f6']} />
-            <fog attach="fog" args={['#f4f7f6', 8, 25]} />
+            <fog attach="fog" args={['#f4f7f6', 10, 50]} />
+
+
 
             <group position={[0, -2, 0]}>
+                <BackgroundTree />
                 <DecisionTree />
                 <DataPackets />
             </group>
