@@ -4,12 +4,20 @@ import { Trail } from '@react-three/drei'
 import * as THREE from 'three'
 import { generateTree } from '../../utils/treeGenerator'
 
-const Packet = ({ pathPoints, color, speed, offset }) => {
+// Shared Geometry and Materials to reduce draw calls and memory
+const packetGeometry = new THREE.SphereGeometry(0.2, 8, 8) // Reduced from 12,12 to 8,8
+const materials = {
+    green: new THREE.MeshStandardMaterial({ color: '#4ade80', emissive: '#4ade80', emissiveIntensity: 3, toneMapped: false }),
+    blue: new THREE.MeshStandardMaterial({ color: '#38bdf8', emissive: '#38bdf8', emissiveIntensity: 3, toneMapped: false }),
+    amber: new THREE.MeshStandardMaterial({ color: '#fbbf24', emissive: '#fbbf24', emissiveIntensity: 3, toneMapped: false }),
+    red: new THREE.MeshStandardMaterial({ color: '#ef4444', emissive: '#ef4444', emissiveIntensity: 3, toneMapped: false })
+}
+
+const Packet = ({ pathPoints, colorType, speed, offset }) => {
     const ref = useRef()
     const [t, setT] = useState(offset)
 
     // Create a smooth curve from the path points
-    // MUST match the Branch curve logic exactly
     const curve = useMemo(() => {
         const points = []
         for (let i = 0; i < pathPoints.length - 1; i++) {
@@ -23,14 +31,14 @@ const Packet = ({ pathPoints, color, speed, offset }) => {
                 end
             ])
 
-            // Sample points from this branch segment
-            points.push(...branchCurve.getPoints(10))
+            // Sample points from this branch segment - Reduced sampling for performance
+            points.push(...branchCurve.getPoints(6)) // Reduced from 10
         }
         return new THREE.CatmullRomCurve3(points)
     }, [pathPoints])
 
     useFrame((state, delta) => {
-        let nextT = t + (speed * delta * 0.2) // Slower speed for elegance
+        let nextT = t + (speed * delta * 0.2)
         if (nextT > 1) nextT = 0
         setT(nextT)
 
@@ -40,26 +48,21 @@ const Packet = ({ pathPoints, color, speed, offset }) => {
         }
     })
 
+    const material = materials[colorType] || materials.green
+    const trailColor = material.color
+
     return (
         <Trail
-            width={2}
-            length={6} // Shorter trail for performance
-            color={new THREE.Color(color).multiplyScalar(1.5)}
+            width={1.5} // Slightly thinner
+            length={5} // Slightly shorter
+            color={trailColor}
             attenuation={(t) => t * t}
-            decay={1} // Faster decay
+            decay={1}
             local={false}
-            stride={0} // Optimize updates
+            stride={0}
             interval={1}
         >
-            <mesh ref={ref}>
-                <sphereGeometry args={[0.2, 12, 12]} /> {/* Low Poly Optimization */}
-                <meshStandardMaterial
-                    color={color}
-                    emissive={color}
-                    emissiveIntensity={3}
-                    toneMapped={false}
-                />
-            </mesh>
+            <mesh ref={ref} geometry={packetGeometry} material={material} />
         </Trail>
     )
 }
@@ -69,7 +72,7 @@ const DataPackets = () => {
 
     const paths = useMemo(() => {
         const p = []
-        const colors = ['#4ade80', '#38bdf8', '#fbbf24'] // Leaf Green, Water Blue, Solar Amber
+        const colorTypes = ['green', 'blue', 'amber']
 
         // Find all leaf nodes
         const leaves = nodes.filter(n => !branches.find(b => b.startId === n.id))
@@ -90,8 +93,8 @@ const DataPackets = () => {
             return path
         }
 
-        // Generate packets with RANDOM directions (Up/Down)
-        for (let i = 0; i < 100; i++) {
+        // Generate packets
+        for (let i = 0; i < 80; i++) { // Reduced count slightly for performance (100 -> 80)
             const randomLeaf = leaves[Math.floor(Math.random() * leaves.length)]
             let pathPoints = getPathToRoot(randomLeaf)
 
@@ -100,14 +103,14 @@ const DataPackets = () => {
 
             // 5% chance of being a RED ANOMALY
             const isAnomaly = Math.random() > 0.95
-            const color = isAnomaly ? '#ef4444' : colors[Math.floor(Math.random() * colors.length)]
+            const colorType = isAnomaly ? 'red' : colorTypes[Math.floor(Math.random() * colorTypes.length)]
             const speed = isAnomaly ? 0.5 : Math.random() * 0.2 + 0.1
 
             p.push({
                 path: pathPoints,
-                color: color,
+                colorType: colorType,
                 speed: speed,
-                offset: Math.random() * 20 // Spread out over a longer timeframe
+                offset: Math.random() * 20
             })
         }
         return p
@@ -119,7 +122,7 @@ const DataPackets = () => {
                 <Packet
                     key={i}
                     pathPoints={packet.path}
-                    color={packet.color}
+                    colorType={packet.colorType}
                     speed={packet.speed}
                     offset={packet.offset}
                 />

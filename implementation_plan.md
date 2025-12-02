@@ -1,35 +1,42 @@
-# Organic Biotech Redesign Plan
+# Visibility Fix & Background Update Plan
 
 ## Goal Description
-Transform the current "Dark Cyberpunk" aesthetic into a "Organic Biotech / HYBE Nature" look. The scene should feel like a clean, luminous data lab surrounded by abstract nature.
+1.  **Fix Data Packets Visibility**: The "bolitas de luz" are currently invisible because their high intensity (`multiplyScalar(20)`) causes them to bloom white against the bright white background. We need to reduce their intensity and adjust the material so their original colors (Green, Blue, Amber) are distinct and visible again.
+2.  **Background Depth**: Add a large, elegant, abstract tree in the background. It should be subtle (glass/wireframe) to add depth without distracting from the main data visualization.
 
 ## Proposed Changes
 
-### Scene & Lighting (`src/components/3d/Experience.jsx`)
--   **Background**: Change to soft off-white/warm gray (`#f4f7f6`).
--   **Fog**: Add matching fog to blend the floor with the horizon.
--   **Lighting**:
-    -   Use `Environment` preset "forest" or "park" (low intensity).
-    -   Add `DirectionalLight` (pale yellow) for sun simulation and soft shadows.
-    -   Adjust Post-processing: Reduce Bloom intensity, adjust ToneMapping for a brighter look.
+### Data Packets (`src/components/3d/DataPackets.jsx`)
+-   **Color & Intensity Fix**:
+    -   Reduce `multiplyScalar` from `20` to `2` or `3`.
+    -   Switch to `meshStandardMaterial` with `emissive` property for a controlled glow that retains color.
+    -   Ensure colors (`#4ade80`, `#38bdf8`, `#fbbf24`) are saturated enough to stand out against `#f4f7f6`.
 
-### Materials (`src/components/3d/DecisionTree.jsx`)
--   **Nodes**: Polished White Ceramic (`color: #ffffff`, `roughness: 0.1`, `transmission: 0`).
--   **Branches**: Light Silver/Grey (`color: #e2e8f0`, `roughness: 0.2`, `metalness: 0.5`).
--   **Floor**: Use `ContactShadows` instead of a dark mesh platform.
+### Background (`src/components/3d/Experience.jsx` & `src/components/3d/BackgroundTree.jsx`)
+-   **New Component `BackgroundTree`**:
+    -   Create a new component that generates a larger, static version of the tree.
+    -   **Visual Style**: "Elegant" & "Subtle".
+        -   Use `MeshPhysicalMaterial` with high `transmission` (glass) and `roughness: 0.2` OR a delicate `Wireframe`.
+        -   Color: Light Grey/Silver to blend with the clean aesthetic.
+    -   **Placement**: Position at `z: -15`, `scale: 6`, `y: -5` to loom nicely in the background.
 
-### Particles (`src/components/3d/DataPackets.jsx`)
--   **Colors**: Nature-inspired palette:
-    -   Leaf Green (`#4ade80`)
-    -   Water Blue (`#38bdf8`)
-    -   Solar Amber (`#fbbf24`)
-
-### UI & Global Styles (`src/components/ui/Overlay.jsx`, `src/index.css`)
--   **Global**: Change body background to `#f4f7f6`.
--   **Overlay**: Invert colors for the light theme.
-    -   Text: Dark Gray (`text-slate-800`) instead of White.
-    -   Panels: White glass (`bg-white/40`) with dark borders (`border-black/5`).
+## Sidebar Replication Plan
+-   **Install Dependency**: `lucide-react` for icons.
+-   **Create `Sidebar.jsx`**:
+    -   Implement `w-64` (expanded) / `w-[72px]` (collapsed) logic.
+    -   Implement Hover expansion logic.
+    -   Replicate exact styling (bg-white, border-r, text-gray-700, active: bg-blue-50 text-blue-600).
+    -   Add Logo and User Profile sections as specified.
+-   **Create `Layout.jsx`**:
+    -   Flex container to hold Sidebar and Main Content.
+-   **Update `App.jsx`**:
+    -   Wrap the 3D experience in the new Layout.
 
 ## Verification Plan
--   **Visual Check**: Ensure the scene looks bright, clean, and "organic".
--   **Contrast**: Verify UI text is readable against the light background.
+### Automated Tests
+-   N/A (Visual changes)
+
+### Manual Verification
+-   **Packet Visibility**: Run the app and verify that green, blue, and amber packets are clearly visible and distinct against the white background.
+-   **Background Aesthetics**: Verify the background tree looks "elegant" (not messy) and provides good depth.
+-   **Sidebar Fidelity**: Verify the sidebar looks and behaves exactly like the description (collapse, hover, active states).

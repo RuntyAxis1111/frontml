@@ -40,7 +40,6 @@ const Experience = () => {
             <fog attach="fog" args={['#f4f7f6', 10, 50]} />
 
 
-
             <group position={[0, -2, 0]}>
                 <BackgroundTree />
                 <DecisionTree />
@@ -48,7 +47,7 @@ const Experience = () => {
             </group>
 
             {/* Post Processing - Subtle & Clean */}
-            <EffectComposer disableNormalPass>
+            <EffectComposer disableNormalPass multisampling={0}>
                 <Bloom
                     luminanceThreshold={0.8} // Higher threshold so only very bright things glow
                     mipmapBlur
@@ -57,7 +56,7 @@ const Experience = () => {
                 />
                 <Vignette eskil={false} offset={0.1} darkness={0.4} />
                 <Noise opacity={0.015} />
-            </EffectComposer>
+            </EffectComposer >
         </>
     )
 }

@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Suspense } from 'react'
 import Experience from './components/3d/Experience'
 import Layout from './components/layout/Layout'
+import AnalysisPanel from './components/ui/AnalysisPanel'
 
 function App() {
     return (
@@ -17,6 +18,9 @@ function App() {
                         <Experience />
                     </Suspense>
                 </Canvas>
+
+                {/* Fixed HUD Analysis Panel */}
+                <AnalysisPanel />
 
                 {/* UI Overlay - Recreated inside Layout context if needed, or just keep the 3D view clean */}
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none p-12">

@@ -3,19 +3,33 @@ import * as THREE from 'three'
 import { ContactShadows } from '@react-three/drei'
 import { generateTree } from '../../utils/treeGenerator'
 
+// Shared Resources
+const nodeGeometry = new THREE.SphereGeometry(0.3, 16, 16) // Reduced from 32,32
+const nodeMaterial = new THREE.MeshPhysicalMaterial({
+    color: "#ffffff",
+    roughness: 0.1,
+    metalness: 0.1,
+    transmission: 0,
+    clearcoat: 1,
+    clearcoatRoughness: 0.1
+})
+
+const branchMaterial = new THREE.MeshStandardMaterial({
+    color: "#e2e8f0",
+    roughness: 0.2,
+    metalness: 0.5,
+    envMapIntensity: 1
+})
+
 const Node = ({ position }) => {
     return (
-        <mesh position={position} castShadow receiveShadow>
-            <sphereGeometry args={[0.3, 32, 32]} />
-            <meshPhysicalMaterial
-                color="#ffffff"
-                roughness={0.1}
-                metalness={0.1}
-                transmission={0}
-                clearcoat={1}
-                clearcoatRoughness={0.1}
-            />
-        </mesh>
+        <mesh
+            position={position}
+            castShadow
+            receiveShadow
+            geometry={nodeGeometry}
+            material={nodeMaterial}
+        />
     )
 }
 
@@ -29,14 +43,8 @@ const Branch = ({ start, end, thickness = 0.08 }) => {
     }, [start, end])
 
     return (
-        <mesh castShadow receiveShadow>
-            <tubeGeometry args={[curve, 12, thickness, 8, false]} /> {/* Reduced segments from 20/16 to 12/8 */}
-            <meshStandardMaterial
-                color="#e2e8f0" // Light silver/grey
-                roughness={0.2}
-                metalness={0.5}
-                envMapIntensity={1}
-            />
+        <mesh castShadow receiveShadow material={branchMaterial}>
+            <tubeGeometry args={[curve, 12, thickness, 8, false]} />
         </mesh>
     )
 }

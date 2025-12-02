@@ -1,10 +1,8 @@
-import { Link, useLocation } from 'react-router-dom'
 import { Chrome as Home, ChartBar as BarChart3, Brain, Bell, Search, Info, LogOut, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useState } from 'react'
 
 export function Sidebar({ isMobileOpen = false, onMobileClose, isCollapsed = false, onToggleCollapse }) {
-    const location = useLocation()
     const { user, signOut } = useAuth()
     const [isHovered, setIsHovered] = useState(false)
 
@@ -22,10 +20,6 @@ export function Sidebar({ isMobileOpen = false, onMobileClose, isCollapsed = fal
     // Use local state if prop is not controlled
     const effectiveCollapsed = onToggleCollapse ? isCollapsed : localCollapsed
 
-    const isActive = (path) => {
-        return location.pathname === path
-    }
-
     const handleSignOut = async () => {
         try {
             await signOut()
@@ -35,13 +29,13 @@ export function Sidebar({ isMobileOpen = false, onMobileClose, isCollapsed = fal
     }
 
     const navItems = [
-        { path: '/', label: 'Home', icon: Home },
-        { path: '/dashboards', label: 'Dashboards', icon: BarChart3 },
-        { path: '/reports', label: 'Reports', icon: FileText },
-        { path: '/ai', label: 'AI Studio', icon: Brain },
-        { path: '/subscriptions', label: 'Subscriptions', icon: Bell },
-        { path: '/data', label: 'Data Explorer', icon: Search },
-        { path: '/about', label: 'About', icon: Info }
+        { path: 'https://analytics.hybelatinamerica.com/', label: 'Home', icon: Home },
+        { path: 'https://analytics.hybelatinamerica.com/dashboards', label: 'Dashboards', icon: BarChart3 },
+        { path: 'https://analytics.hybelatinamerica.com/reports', label: 'Reports', icon: FileText },
+        { path: 'https://analytics.hybelatinamerica.com/ai', label: 'AI Studio', icon: Brain },
+        { path: 'https://analytics.hybelatinamerica.com/subscriptions', label: 'Subscriptions', icon: Bell },
+        { path: 'https://analytics.hybelatinamerica.com/data', label: 'Data Explorer', icon: Search },
+        { path: 'https://analytics.hybelatinamerica.com/about', label: 'About', icon: Info }
     ]
 
     return (
@@ -92,11 +86,15 @@ export function Sidebar({ isMobileOpen = false, onMobileClose, isCollapsed = fal
                     <ul className="space-y-2">
                         {navItems.map((item) => {
                             const IconComponent = item.icon
-                            const isActiveRoute = isActive(item.path)
+                            // Simple check: if current window location matches the item path (ignoring domain for local dev if needed, but here we just check exact match or simple logic)
+                            // Since these are external links, "active" state might not be relevant in the same way, 
+                            // but we can keep the style logic if we want, or just default to inactive.
+                            // For now, let's remove the active check as we are navigating away.
+                            const isActiveRoute = false
                             return (
                                 <li key={item.path}>
-                                    <Link
-                                        to={item.path}
+                                    <a
+                                        href={item.path}
                                         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors relative group ${isActiveRoute
                                             ? 'bg-blue-100 text-blue-700'
                                             : 'text-gray-700 hover:bg-gray-100'
@@ -107,7 +105,7 @@ export function Sidebar({ isMobileOpen = false, onMobileClose, isCollapsed = fal
                                         {(!effectiveCollapsed || isHovered) && (
                                             <span className="truncate">{item.label}</span>
                                         )}
-                                    </Link>
+                                    </a>
                                 </li>
                             )
                         })}

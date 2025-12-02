@@ -1,17 +1,23 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
 
+// Shared Resources
+const bgNodeGeometry = new THREE.SphereGeometry(1, 16, 16)
+const bgNodeMaterial = new THREE.MeshBasicMaterial({
+    color: "#94a3b8",
+    wireframe: true,
+    transparent: true,
+    opacity: 0.6
+})
+
 const BackgroundNode = ({ position, scale }) => {
     return (
-        <mesh position={position} scale={scale}>
-            <sphereGeometry args={[1, 16, 16]} /> {/* Reduced from 24 */}
-            <meshBasicMaterial
-                color="#94a3b8"
-                wireframe
-                transparent
-                opacity={0.6} // More marked
-            />
-        </mesh>
+        <mesh
+            position={position}
+            scale={scale}
+            geometry={bgNodeGeometry}
+            material={bgNodeMaterial}
+        />
     )
 }
 
