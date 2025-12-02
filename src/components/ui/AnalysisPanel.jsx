@@ -80,6 +80,54 @@ const AnalysisPanel = () => {
                     </div>
                 </div>
 
+                {/* Model Context */}
+                <div className="border-t border-black/5 pt-3">
+                    <div className="text-[9px] font-bold tracking-widest text-slate-400 mb-2">MODEL CONTEXT</div>
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-500">Model:</span>
+                            <span className="text-slate-700 font-mono">XGBoost v0.1</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-500">Horizon:</span>
+                            <span className="text-slate-700 font-mono">+28 days</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-500">Training window:</span>
+                            <span className="text-slate-700 font-mono">24 months</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-500">Train set:</span>
+                            <span className="text-slate-700 font-mono">1,000 artists</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-500">Last retrain:</span>
+                            <span className="text-slate-700 font-mono">2025-12-01</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Why This Score */}
+                {artist.scoreDrivers && (
+                    <div className="border-t border-black/5 pt-3">
+                        <div className="text-[9px] font-bold tracking-widest text-slate-400 mb-2">WHY THIS SCORE?</div>
+                        <div className="space-y-1.5">
+                            {artist.scoreDrivers.map((driver, i) => (
+                                <div key={i} className="flex items-start gap-2 text-[10px]">
+                                    <span className={`shrink-0 ${driver.type === 'up' ? 'text-green-600' :
+                                        driver.type === 'down' ? 'text-red-600' :
+                                            'text-slate-400'
+                                        }`}>
+                                        {driver.type === 'up' ? '▲' : driver.type === 'down' ? '▼' : '≈'}
+                                    </span>
+                                    <span className="text-slate-700">{driver.text}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+
                 {/* Social Media Stats Dropdown */}
                 <div className="border-t border-black/5 pt-2">
                     <button
@@ -135,7 +183,13 @@ const AnalysisPanel = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Disclaimer */}
+                <div className="text-[9px] text-slate-400 text-center mt-2 opacity-60 leading-relaxed">
+                    Experimental prediction – do not use as the only decision signal.
+                </div>
             </div>
+
 
             {/* Navigation Bar - Avatar Strip */}
             <div className="w-80 p-3 rounded-xl bg-white/80 backdrop-blur-md border border-white/50 shadow-lg overflow-hidden">
